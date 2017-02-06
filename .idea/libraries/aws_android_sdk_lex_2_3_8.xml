@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="aws-android-sdk-lex-2.3.8">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/e2voiceSearch/build/intermediates/exploded-aar/com.amazonaws/aws-android-sdk-lex/2.3.8/jars/classes.jar!/" />
       <root url="file://$PROJECT_DIR$/e2voiceSearch/build/intermediates/exploded-aar/com.amazonaws/aws-android-sdk-lex/2.3.8/res" />
+      <root url="jar://$PROJECT_DIR$/e2voiceSearch/build/intermediates/exploded-aar/com.amazonaws/aws-android-sdk-lex/2.3.8/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

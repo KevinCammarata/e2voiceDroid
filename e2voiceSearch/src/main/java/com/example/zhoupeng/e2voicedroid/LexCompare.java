@@ -128,6 +128,8 @@ public class LexCompare extends Activity
         Log.d(TAG, "Bot responded with slots: " + response.getSlots().toString());
         Log.d(TAG, "Bot responded with session attrs: " + response.getSessionAttributes().toString());
         addMessage(new TextMessage(response.getTextResponse(), "rx", getCurrentTimeStamp()));
+        interactiveVoiceViewAdapter.runComparisonDataSet();
+
     }
 
     private String getCurrentTimeStamp() {

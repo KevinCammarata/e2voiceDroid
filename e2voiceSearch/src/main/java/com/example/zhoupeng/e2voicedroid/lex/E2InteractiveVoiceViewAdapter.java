@@ -55,7 +55,7 @@ public class E2InteractiveVoiceViewAdapter
     private final ClientConfiguration clientConfiguration;
 
     private ArrayList<String> utteranceList;
-    private int utterancesSubmitted;
+    private int utterancesSubmitted = 0;
 
     private boolean hasInteractionError;
     // Dialog states.
@@ -240,38 +240,26 @@ public class E2InteractiveVoiceViewAdapter
         }
     }
 
-    private void runComparisonDataSet()
+    public void runComparisonDataSet()
     {
         Log.d("RunComparisonDataSet", "Entering method runComparisonDataSet()");
-        //read text from file
-        InputStream is = context.getResources().openRawResource(R.raw.input);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        try {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Lex,input:").append(line);
-                Log.d("E2ViewAdapter", sb.toString());
-//                Log.d("RunComparisonDataSet", "interactiveVoiceViewAdapter" + interactiveVoiceViewAdapter.toString());
-                startTextConversation(line, new HashMap<String, String>());
 
-//                PostTextRequest request = new PostTextRequest();
-//                request.setBotAlias("Prod");
-//                request.setBotName("CDRateCheckBot");
-//                request.setInputText(line);
-//                PostTextResult result = amazonlex.postText(request);
-//                Log.i("RunComparisonDataSet", result.toString());
-
-            }
-            Log.i("E2ViewAdapter", "Reached end of input file");
+        //if utterancesSubmitted = utteranceList.size do nothing
+        if(utterancesSubmitted == utteranceList.size()) {
+            Log.i(TAG, "Reached end of utterance list.  No further utterances will be submitted.");
         }
-        catch (IOException e) {
-            Log.e("E2ViewAdapter", "Caught an IOException reading R.raw.input", e);
+        else{
+            String utterance = utteranceList.get(utterancesSubmitted);
+            utterancesSubmitted++;
+
+            //Write to file
+
+            startTextConversation(utterance, new HashMap<String, String>());
+            Log.d(TAG, "Starting text conversation with utterance: " + utterance);
         }
 
-        //for each input
-        //Send message
-        //Log response
+
+
 
     }
 
@@ -380,6 +368,8 @@ public class E2InteractiveVoiceViewAdapter
     }
 
 
+
+
     /**
      * Invoke Amazon Lex client to start a new audio in audio request.
      *
@@ -423,6 +413,7 @@ public class E2InteractiveVoiceViewAdapter
         createInteractionClient();
         micButton.setOnClickListener(this);
         shouldInitialize = false;
+        utteranceList = new ArrayList<String>();
         loadInputFile();
     }
 
