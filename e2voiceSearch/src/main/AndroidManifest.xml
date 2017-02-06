@@ -31,6 +31,7 @@
         <activity android:name=".lex_mix" />
         <activity android:name=".Lex_mix_polly" />
         <activity android:name=".Lex_polly" />
+        <activity android:name=".LexCompare" />
         <activity android:name=".GoogleVoice"></activity>
     </application>
 

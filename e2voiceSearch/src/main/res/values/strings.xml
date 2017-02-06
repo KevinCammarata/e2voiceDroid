@@ -1,12 +1,12 @@
 <resources>
     <string name="app_name">E2Voice Search</string>
-    <string name="bot_name">CDRateCheckBot</string>
-    <string name="bot_alias">Prod</string>
+    <string name="bot_name">ComparisonBot</string>
+    <string name="bot_alias">Latest</string>
     <string name="identity_id_test">us-east-1:abe58b2e-9591-4ecb-b028-0b4d16cbf05a</string>
     <string name="aws_region">us-east-1</string>
     <string name="screen_options_main_message">Amazon Lex</string>
     <string name="ok">OK</string>
     <string name="permission_mp_rationale">Microphone permission is neededed.</string>
-    <string name="lex_mic_start">What can i do for you?</string>
+    <string name="lex_mic_start">What can I do for you?</string>
     <string name="lex_fulfilled">The request has been fulfilled.</string>
 </resources>

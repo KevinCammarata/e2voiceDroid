@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    tools:context="com.example.zhoupeng.e2voicedroid.Lex_polly"
+    tools:context="com.example.zhoupeng.e2voicedroid.LexCompare"
     android:keepScreenOn="true">
 
     <TextView

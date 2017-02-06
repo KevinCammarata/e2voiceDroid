@@ -54,7 +54,7 @@
         android:text="Lex/Polly with google Voice" /-->
 
     <Button
-        android:id="@+id/goto_reg_lex_polly"
+        android:id="@+id/goto_reg_lex_compare"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

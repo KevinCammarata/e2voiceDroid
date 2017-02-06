@@ -19,7 +19,13 @@ package com.example.zhoupeng.e2voicedroid.lex;
         import com.amazonaws.mobileconnectors.lex.interactionkit.listeners.MicrophoneListener;
         import com.amazonaws.regions.Regions;
         import com.amazonaws.services.lexrts.model.DialogState;
+        import com.example.zhoupeng.e2voicedroid.R;
 
+        import java.io.BufferedReader;
+        import java.io.IOException;
+        import java.io.InputStream;
+        import java.io.InputStreamReader;
+        import java.util.ArrayList;
         import java.util.HashMap;
         import java.util.Map;
 
@@ -47,6 +53,9 @@ public class E2InteractiveVoiceViewAdapter
     private boolean shouldInitialize;
     private Map<String, String> sessionAttributes;
     private final ClientConfiguration clientConfiguration;
+
+    private ArrayList<String> utteranceList;
+    private int utterancesSubmitted;
 
     private boolean hasInteractionError;
     // Dialog states.
@@ -116,6 +125,7 @@ public class E2InteractiveVoiceViewAdapter
 
         if (voiceListener != null) {
             voiceListener.dialogReadyForFulfillment(response.getSlots(), response.getIntentName());
+            Log.d("LexResponse", "Intent name: " + response.getIntentName());
         }
     }
 
@@ -218,7 +228,8 @@ public class E2InteractiveVoiceViewAdapter
                 if (sessionAttributes == null) {
                     sessionAttributes = new HashMap<String, String>();
                 }
-                startListening(sessionAttributes);
+//                startListening(sessionAttributes);
+                runComparisonDataSet();
                 break;
             case STATE_LISTENING:
             case STATE_AUDIO_PLAYBACK:
@@ -227,6 +238,41 @@ public class E2InteractiveVoiceViewAdapter
                 state = STATE_READY;
                 break;
         }
+    }
+
+    private void runComparisonDataSet()
+    {
+        Log.d("RunComparisonDataSet", "Entering method runComparisonDataSet()");
+        //read text from file
+        InputStream is = context.getResources().openRawResource(R.raw.input);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Lex,input:").append(line);
+                Log.d("E2ViewAdapter", sb.toString());
+//                Log.d("RunComparisonDataSet", "interactiveVoiceViewAdapter" + interactiveVoiceViewAdapter.toString());
+                startTextConversation(line, new HashMap<String, String>());
+
+//                PostTextRequest request = new PostTextRequest();
+//                request.setBotAlias("Prod");
+//                request.setBotName("CDRateCheckBot");
+//                request.setInputText(line);
+//                PostTextResult result = amazonlex.postText(request);
+//                Log.i("RunComparisonDataSet", result.toString());
+
+            }
+            Log.i("E2ViewAdapter", "Reached end of input file");
+        }
+        catch (IOException e) {
+            Log.e("E2ViewAdapter", "Caught an IOException reading R.raw.input", e);
+        }
+
+        //for each input
+        //Send message
+        //Log response
+
     }
 
     public void autoStartNewConversation()
@@ -299,7 +345,40 @@ public class E2InteractiveVoiceViewAdapter
         lexInteractionClient.setAudioPlaybackListener(this);
         lexInteractionClient.setInteractionListener(this);
         lexInteractionClient.setMicrophoneListener(this);
+
+
     }
+
+    private void loadInputFile(){
+        Log.d("RunComparisonDataSet", "Entering method runComparisonDataSet()");
+        //read text from file
+        InputStream is = context.getResources().openRawResource(R.raw.input);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                utteranceList.add(line);
+//                StringBuilder sb = new StringBuilder();
+//                sb.append("Lex,input:").append(line);
+//                Log.d("E2ViewAdapter", sb.toString());
+////                Log.d("RunComparisonDataSet", "interactiveVoiceViewAdapter" + interactiveVoiceViewAdapter.toString());
+//                startTextConversation(line, new HashMap<String, String>());
+
+//                PostTextRequest request = new PostTextRequest();
+//                request.setBotAlias("Prod");
+//                request.setBotName("CDRateCheckBot");
+//                request.setInputText(line);
+//                PostTextResult result = amazonlex.postText(request);
+//                Log.i("RunComparisonDataSet", result.toString());
+
+            }
+//            Log.i("E2ViewAdapter", "Reached end of input file");
+        }
+        catch (IOException e) {
+            Log.e("E2ViewAdapter", "Caught an IOException reading R.raw.input", e);
+        }
+    }
+
 
     /**
      * Invoke Amazon Lex client to start a new audio in audio request.
@@ -315,6 +394,26 @@ public class E2InteractiveVoiceViewAdapter
     }
 
     /**
+     * Invoke Amazon Lex client to start a new text request.
+     *
+     * @param sessionParameters The session parameters to be used for this
+     *            request.
+     */
+    public void startTextConversation(String text, Map<String, String> sessionParameters) {
+//        state = STATE_LISTENING;
+        Log.d("StartTextConvo", "Value of text: " + text);
+        Log.d("StartTextConvo","Value of sessionParameters: " + sessionParameters.toString());
+        if(null == lexInteractionClient)
+        {
+            createInteractionClient();
+        }
+        Log.d("StartTextConvo", "Value of lexInteractionClient" + lexInteractionClient);
+        lexInteractionClient.textInForTextOut(text, sessionParameters);
+//        if(voiceListener!=null)
+//            voiceListener.onStartListening(state);
+    }
+
+    /**
      * Initializes this adapter. This will terminate any ongoing transactions with the current
      * instance of the client and creates a new client.
      */
@@ -324,6 +423,7 @@ public class E2InteractiveVoiceViewAdapter
         createInteractionClient();
         micButton.setOnClickListener(this);
         shouldInitialize = false;
+        loadInputFile();
     }
 
     /**

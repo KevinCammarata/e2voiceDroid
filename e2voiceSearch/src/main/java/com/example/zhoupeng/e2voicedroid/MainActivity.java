@@ -38,7 +38,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 //        googleDemoButton = (Button) findViewById(R.id.goto_reg_google);
 //        textDemoButton = (Button) findViewById(R.id.goto_reg_lex_mix);
 //        textPollyDemoButton = (Button) findViewById(R.id.goto_reg_lex_mix_polly);
-        speechLexButton = (Button) findViewById(R.id.goto_reg_lex_polly);
+        speechLexButton = (Button) findViewById(R.id.goto_reg_lex_compare);
 
 //        textDemoButton.setOnClickListener(this);
         speechLexButton.setOnClickListener(this);
@@ -47,7 +47,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         requestMicroPermission();
 
-        Intent voiceIntent = new Intent(this, Lex_polly.class);
+        Intent voiceIntent = new Intent(this, LexCompare.class);
     }
 
     @Override
@@ -65,8 +65,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 //                Intent googleIntent = new Intent(this, GoogleVoice.class);
 //                startActivity(googleIntent);
 //                break;
-            case R.id.goto_reg_lex_polly:
-                Intent voiceIntent = new Intent(this, Lex_polly.class);
+            case R.id.goto_reg_lex_compare:
+                Intent voiceIntent = new Intent(this, LexCompare.class);
                 startActivity(voiceIntent);
                 break;
         }

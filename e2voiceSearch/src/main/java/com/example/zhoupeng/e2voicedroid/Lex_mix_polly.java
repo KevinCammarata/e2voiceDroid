@@ -22,29 +22,41 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.lex.interactionkit.InteractionClient;
 import com.amazonaws.mobileconnectors.lex.interactionkit.Response;
 import com.amazonaws.mobileconnectors.lex.interactionkit.continuations.LexServiceContinuation;
 import com.amazonaws.mobileconnectors.lex.interactionkit.listeners.AudioPlaybackListener;
 import com.amazonaws.mobileconnectors.lex.interactionkit.listeners.InteractionListener;
+import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.lexrts.AmazonLexRuntime;
+import com.amazonaws.services.lexrts.AmazonLexRuntimeClient;
 import com.amazonaws.services.lexrts.model.DialogState;
+import com.amazonaws.services.lexrts.model.PostTextRequest;
+import com.amazonaws.services.lexrts.model.PostTextResult;
 import com.amazonaws.services.polly.AmazonPollyPresigningClient;
 import com.amazonaws.services.polly.model.DescribeVoicesRequest;
 import com.amazonaws.services.polly.model.DescribeVoicesResult;
 import com.amazonaws.services.polly.model.OutputFormat;
 import com.amazonaws.services.polly.model.SynthesizeSpeechPresignRequest;
 import com.amazonaws.services.polly.model.Voice;
+import com.amazonaws.util.StringUtils;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static java.lang.System.in;
 
 public class Lex_mix_polly extends Activity implements TextToSpeech.OnInitListener{
 
@@ -71,6 +83,10 @@ public class Lex_mix_polly extends Activity implements TextToSpeech.OnInitListen
     private AmazonPollyPresigningClient client;
     MediaPlayer mediaPlayer;
     private List<Voice> voices;
+    /**
+     * Amazon Lex service client.
+     */
+    private AmazonLexRuntime amazonlex;
 
     @Override
     public void onBackPressed() {
@@ -132,6 +148,14 @@ public class Lex_mix_polly extends Activity implements TextToSpeech.OnInitListen
         client = new AmazonPollyPresigningClient(credentialsProvider);
 
         setupNewMediaPlayer();
+
+        ClientConfiguration clientConfiguration = new ClientConfiguration();
+        String userAgent = "INTERACTION_CLIENT";
+        clientConfiguration.setUserAgent(userAgent);
+        amazonlex = new AmazonLexRuntimeClient(credentialsProvider, clientConfiguration);
+        amazonlex.setRegion(Region.getRegion(Regions.US_EAST_1));
+
+        runComparisonDataSet();
     }
 
     @Override
@@ -282,6 +306,49 @@ public class Lex_mix_polly extends Activity implements TextToSpeech.OnInitListen
     private void readUserText(final LexServiceContinuation continuation) {
         convContinuation = continuation;
         inConversation = true;
+    }
+
+    private void runComparisonDataSet()
+    {
+        //read text from file
+        InputStream is = getApplicationContext().getResources().openRawResource(R.raw.input);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Lex,input:").append(line);
+                Log.i("Lex request from file", sb.toString());
+
+                PostTextRequest request = new PostTextRequest();
+                request.setBotAlias("Prod");
+                request.setBotName("CDRateCheckBot");
+                request.setInputText(line);
+                PostTextResult result = amazonlex.postText(request);
+                Log.i("Lex result", result.toString());
+
+//                if (!inConversation) {
+//                    Log.d(TAG, " -- New conversation started");
+//                    startNewConversation();
+//                    addMessage(new TextMessage(line, "tx", getCurrentTimeStamp()));
+//                    lexInteractionClient.textInForTextOut(line, null);
+//                    inConversation = true;
+//                } else {
+//                    Log.d(TAG, " -- Responding with text: " + line);
+//                    addMessage(new TextMessage(line, "tx", getCurrentTimeStamp()));
+//                    convContinuation.continueWithTextInForTextOut(line);
+//                }
+
+            }
+        }
+        catch (IOException e) {
+            Log.e("Error reading input", "Caught an IOException reading R.raw.input", e);
+        }
+
+        //for each input
+            //Send message
+            //Log response
+
     }
 
     private void textEntered() {
