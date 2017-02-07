@@ -1,6 +1,7 @@
 package com.example.zhoupeng.e2voicedroid.lex;
 
         import android.content.Context;
+        import android.os.Environment;
         import android.os.Handler;
         import android.util.Log;
         import android.view.View;
@@ -22,6 +23,9 @@ package com.example.zhoupeng.e2voicedroid.lex;
         import com.example.zhoupeng.e2voicedroid.R;
 
         import java.io.BufferedReader;
+        import java.io.File;
+        import java.io.FileOutputStream;
+        import java.io.FileWriter;
         import java.io.IOException;
         import java.io.InputStream;
         import java.io.InputStreamReader;
@@ -58,6 +62,8 @@ public class E2InteractiveVoiceViewAdapter
     private int utterancesSubmitted = 0;
 
     private boolean hasInteractionError;
+    private File outputFile;
+
     // Dialog states.
     public final static int STATE_NOT_READY = 0;
     public final static int STATE_READY = 1;
@@ -240,6 +246,11 @@ public class E2InteractiveVoiceViewAdapter
         }
     }
 
+    public void startComparison(View v){
+        init();
+        runComparisonDataSet();
+    }
+
     public void runComparisonDataSet()
     {
         Log.d("RunComparisonDataSet", "Entering method runComparisonDataSet()");
@@ -346,28 +357,56 @@ public class E2InteractiveVoiceViewAdapter
             String line;
             while ((line = reader.readLine()) != null) {
                 utteranceList.add(line);
-//                StringBuilder sb = new StringBuilder();
-//                sb.append("Lex,input:").append(line);
-//                Log.d("E2ViewAdapter", sb.toString());
-////                Log.d("RunComparisonDataSet", "interactiveVoiceViewAdapter" + interactiveVoiceViewAdapter.toString());
-//                startTextConversation(line, new HashMap<String, String>());
 
-//                PostTextRequest request = new PostTextRequest();
-//                request.setBotAlias("Prod");
-//                request.setBotName("CDRateCheckBot");
-//                request.setInputText(line);
-//                PostTextResult result = amazonlex.postText(request);
-//                Log.i("RunComparisonDataSet", result.toString());
 
             }
-//            Log.i("E2ViewAdapter", "Reached end of input file");
         }
         catch (IOException e) {
             Log.e("E2ViewAdapter", "Caught an IOException reading R.raw.input", e);
         }
     }
 
+    private void loadOutputFile(){
+        Log.d("RunComparisonDataSet", "Entering loadOutputFile method");
+            File root = context.getFilesDir();
+            File output = new File(root, "Output");
+            if (!output.exists()) {
+                output.mkdirs();
+            }
+            outputFile = new File(output, "LexComparisonOutput.txt");
+        try {
+           if(!outputFile.exists()) {
+               Log.d("FileCreation", outputFile.toString());
+               outputFile.createNewFile();
 
+           }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public void writeToOutputFile(String text){
+
+        Log.d("RunComparisonDataSet", "Entered writeToOutputFile function");
+//        try (FileWriter writer =new FileWriter(outputFile)) {
+//            Log.d("RunComparisonDataSet", "Starting to write to output file");
+//            writer.append(text);
+//            writer.flush();
+//            writer.close();
+//            Log.d("RunComparisonDataSet", "Write to output file try block completed.");
+//       }
+        try (FileOutputStream fileOutputStream = context.openFileOutput(outputFile.getName(), Context.MODE_APPEND))
+        {
+            fileOutputStream.write(text.getBytes());
+            fileOutputStream.close();
+        }
+       catch (IOException e) {
+           e.printStackTrace();
+       }
+
+    }
 
 
     /**
@@ -398,9 +437,11 @@ public class E2InteractiveVoiceViewAdapter
             createInteractionClient();
         }
         Log.d("StartTextConvo", "Value of lexInteractionClient" + lexInteractionClient);
+        StringBuilder sb = new StringBuilder();
+        sb.append(System.lineSeparator()).append("Lex,input:").append(text).append(",");
+        writeToOutputFile(sb.toString());
         lexInteractionClient.textInForTextOut(text, sessionParameters);
-//        if(voiceListener!=null)
-//            voiceListener.onStartListening(state);
+
     }
 
     /**
@@ -415,6 +456,7 @@ public class E2InteractiveVoiceViewAdapter
         shouldInitialize = false;
         utteranceList = new ArrayList<String>();
         loadInputFile();
+        loadOutputFile();
     }
 
     /**

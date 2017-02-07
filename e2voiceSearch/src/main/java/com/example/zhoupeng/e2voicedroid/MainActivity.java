@@ -22,6 +22,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 //    private Button textDemoButton;
 //    private Button textPollyDemoButton;
     private Button speechLexButton;
+    private Button compareLexButton;
 
     private View mLayout;
     /**
@@ -38,10 +39,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 //        googleDemoButton = (Button) findViewById(R.id.goto_reg_google);
 //        textDemoButton = (Button) findViewById(R.id.goto_reg_lex_mix);
 //        textPollyDemoButton = (Button) findViewById(R.id.goto_reg_lex_mix_polly);
-        speechLexButton = (Button) findViewById(R.id.goto_reg_lex_compare);
+//        speechLexButton = (Button) findViewById(R.id.goto_reg_lex_converse);
+        compareLexButton = (Button) findViewById(R.id.goto_reg_lex_compare);
 
 //        textDemoButton.setOnClickListener(this);
-        speechLexButton.setOnClickListener(this);
+//        speechLexButton.setOnClickListener(this);
+        compareLexButton.setOnClickListener(this);
 //        textPollyDemoButton.setOnClickListener(this);
 //        googleDemoButton.setOnClickListener(this);
 

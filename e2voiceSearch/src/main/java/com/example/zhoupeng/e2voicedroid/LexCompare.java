@@ -69,7 +69,7 @@ public class LexCompare extends Activity
     private void init() {
         appContext = getApplicationContext();
         voiceView = (E2InteractiveVoiceView) findViewById(R.id.voiceInterface);
-        voiceView.setInteractiveVoiceListener(this);
+       voiceView.setInteractiveVoiceListener(this);
 //        CognitoCredentialsProvider credentialsProvider = new CognitoCredentialsProvider(
 //                appContext.getResources().getString(R.string.identity_id_test),
 //                Regions.fromName(appContext.getResources().getString(R.string.aws_region)));
@@ -90,26 +90,27 @@ public class LexCompare extends Activity
         interactiveVoiceViewAdapter.setCredentialProvider(credentialsProvider);
         InteractionConfig config = new InteractionConfig(appContext.getString(R.string.bot_name),
                 appContext.getString(R.string.bot_alias));
-        config.setNoSpeechTimeoutInterval(InteractionConfig.DEFAULT_NO_SPEECH_TIMEOUT_INTERVAL*3);
-        config.setMaxSpeechTimeoutInterval(InteractionConfig.DEFAULT_MAX_SPEECH_TIMEOUT_INTERVAL*3);
+//        config.setNoSpeechTimeoutInterval(InteractionConfig.DEFAULT_NO_SPEECH_TIMEOUT_INTERVAL*3);
+//        config.setMaxSpeechTimeoutInterval(InteractionConfig.DEFAULT_MAX_SPEECH_TIMEOUT_INTERVAL*3);
         interactiveVoiceViewAdapter.setInteractionConfig(config);
         interactiveVoiceViewAdapter.setAwsRegion(appContext.getString(R.string.aws_region));
 
-        interactiveVoiceViewAdapter.autoStartNewConversation();
+//        interactiveVoiceViewAdapter.autoStartNewConversation();
+        interactiveVoiceViewAdapter.startComparison(voiceView);
 
 //        comparisonInit(myCredentialsProvider);
         //runComparisonDataSet();
     }
 
-    public void comparisonInit(CognitoCachingCredentialsProvider credentialsProvider){
-        Log.d("ComparisonInit", "Entering the ComparisonInit() function");
-        ClientConfiguration clientConfiguration = new ClientConfiguration();
-        String userAgent = "INTERACTION_CLIENT";
-        clientConfiguration.setUserAgent(userAgent);
-        amazonlex = new AmazonLexRuntimeClient(credentialsProvider, clientConfiguration);
-        amazonlex.setRegion(Region.getRegion(Regions.fromName("us-east-1")));
-
-    }
+//    public void comparisonInit(CognitoCachingCredentialsProvider credentialsProvider){
+//        Log.d("ComparisonInit", "Entering the ComparisonInit() function");
+//        ClientConfiguration clientConfiguration = new ClientConfiguration();
+//        String userAgent = "INTERACTION_CLIENT";
+//        clientConfiguration.setUserAgent(userAgent);
+//        amazonlex = new AmazonLexRuntimeClient(credentialsProvider, clientConfiguration);
+//        amazonlex.setRegion(Region.getRegion(Regions.fromName("us-east-1")));
+//
+//    }
 
 
 
@@ -125,11 +126,19 @@ public class LexCompare extends Activity
     @Override
     public void onResponse(Response response) {
         Log.d(TAG, "Bot responded with intent: " + response.getIntentName());
-        Log.d(TAG, "Bot responded with slots: " + response.getSlots().toString());
-        Log.d(TAG, "Bot responded with session attrs: " + response.getSessionAttributes().toString());
+//        Log.d(TAG, "Bot responded with slots: " + response.getSlots().toString());
+//        Log.d(TAG, "Bot responded with session attrs: " + response.getSessionAttributes().toString());
         addMessage(new TextMessage(response.getTextResponse(), "rx", getCurrentTimeStamp()));
+        writeOutputMessage(response);
         interactiveVoiceViewAdapter.runComparisonDataSet();
 
+    }
+
+    private void writeOutputMessage(Response response){
+        StringBuffer sb = new StringBuffer();
+        sb.append("Intent: ").append(response.getIntentName()!= null ? response.getIntentName() : "None");
+        sb.append(", Slots: ").append(response.getSlots()!=null ? response.getSlots().toString() : "None");
+        interactiveVoiceViewAdapter.writeToOutputFile(sb.toString());
     }
 
     private String getCurrentTimeStamp() {
